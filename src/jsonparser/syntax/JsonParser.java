@@ -1,10 +1,12 @@
-package jsonparser;
+package jsonparser.syntax;
 
+import jsonparser.lexical.JsonToken;
+import jsonparser.lexical.JsonTokenType;
 import jsonparser.tree.*;
 
 import java.util.*;
 
-import static jsonparser.JsonTokenType.*;
+import static jsonparser.lexical.JsonTokenType.*;
 
 public final class JsonParser {
 

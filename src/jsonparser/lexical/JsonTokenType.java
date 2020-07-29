@@ -1,4 +1,4 @@
-package jsonparser;
+package jsonparser.lexical;
 
 public enum JsonTokenType {
 

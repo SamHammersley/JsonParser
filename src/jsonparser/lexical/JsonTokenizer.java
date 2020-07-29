@@ -1,4 +1,4 @@
-package jsonparser;
+package jsonparser.lexical;
 
 import java.util.LinkedList;
 import java.util.Optional;

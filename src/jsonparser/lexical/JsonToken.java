@@ -1,4 +1,6 @@
-package jsonparser;
+package jsonparser.lexical;
+
+import jsonparser.lexical.JsonTokenType;
 
 import java.util.function.Function;
 
