@@ -6,15 +6,15 @@ import java.util.Queue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-final class JsonTokenizer {
+public final class JsonTokenizer {
 
     private final String input;
 
-    JsonTokenizer(String input) {
+    public JsonTokenizer(String input) {
         this.input = input;
     }
 
-    Queue<JsonToken> tokenize() {
+    public Queue<JsonToken> tokenize() {
         Queue<JsonToken> tokens = new LinkedList<>();
         String remaining = input;
 
@@ -61,11 +61,11 @@ final class JsonTokenizer {
             StringBuilder bldr = new StringBuilder().append(head);
 
             for (int index = 1; index < remaining.length(); index++) {
-                bldr.append(remaining.charAt(index));
-
                 if (!Character.isDigit(remaining.charAt(index + 1))) {
                     break;
                 }
+
+                bldr.append(remaining.charAt(index));
             }
             token = new JsonToken(JsonTokenType.NUMBER, bldr.toString());
 

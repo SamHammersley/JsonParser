@@ -42,10 +42,10 @@ public final class JsonParser {
         return Objects.requireNonNull(tokens.peek());
     }
 
-    public JsonObject parseJsonObject() {
+    private JsonObject parseJsonObject() {
         expect(LEFT_CURLY_BRACE).consume();
 
-        List<JsonField> fields = new ArrayList<>();
+        Set<JsonField> fields = new HashSet<>();
         fields.add(parseField());
 
         while (getCurrent().getType().equals(COMMA)) {
@@ -57,7 +57,7 @@ public final class JsonParser {
         return new JsonObject(fields);
     }
 
-    private JsonArray parseJsonArray() {
+    private JsonArray<?> parseJsonArray() {
         consume(); // consume left bracket.
 
         List<JsonElement> elements = new ArrayList<>();
@@ -69,7 +69,7 @@ public final class JsonParser {
         }
 
         expect(RIGHT_SQUARE_BRACKET);
-        return new JsonArray(elements);
+        return new JsonArray<>(elements);
     }
 
     private JsonField parseField() {
@@ -82,9 +82,9 @@ public final class JsonParser {
         return new JsonField(key, parseValue());
     }
 
-    private JsonElement parseValue() {
+    public <T extends JsonElement<?>> T parseValue() {
         JsonToken token = getCurrent();
-        JsonElement element;
+        JsonElement<?> element;
 
         switch(token.getType()) {
             case NUMBER:
@@ -116,7 +116,7 @@ public final class JsonParser {
         }
 
         consume();
-        return element;
+        return (T) element;
     }
 
 }

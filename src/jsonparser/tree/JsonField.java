@@ -1,6 +1,8 @@
 package jsonparser.tree;
 
-public final class JsonField extends JsonElement {
+import java.util.Objects;
+
+public final class JsonField implements JsonElement<Object[]> {
 
     private final String key;
 
@@ -24,4 +26,13 @@ public final class JsonField extends JsonElement {
         return "\"" + key + "\":" + value.toString();
     }
 
+    @Override
+    public Object[] getData() {
+        return new Object[] { key, value };
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key, value);
+    }
 }

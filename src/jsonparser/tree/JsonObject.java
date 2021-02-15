@@ -1,26 +1,63 @@
 package jsonparser.tree;
 
-import java.util.HashMap;
+import jsonparser.exception.MissingNoArgsConstructorException;
+import jsonparser.exception.NoSuchJsonFieldException;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
-public class JsonObject extends JsonElement {
+public class JsonObject implements JsonElement<Set<JsonField>> {
 
-    private final List<JsonField> fields;
+    private final Set<JsonField> fields;
 
-    private final Map<String, JsonElement> lookup = new HashMap<>();
-
-    public JsonObject(List<JsonField> fields) {
+    public JsonObject(Set<JsonField> fields) {
         this.fields = fields;
     }
 
-    public JsonElement getField(String key) {
-        if (lookup.isEmpty() && !fields.isEmpty()) {
-            fields.forEach(f -> lookup.put(f.getKey(), f.getValue()));
+    public <T extends JsonElement<?>> T getValue(String key) {
+        for (JsonField f : fields) {
+            if (key.equals(f.getKey())) {
+                return (T) f.getValue();
+            }
         }
 
-        return lookup.get(key);
+        throw new RuntimeException("No such value with key: " + key);
+    }
+
+    public <T> T as(Class<T> t) {
+        try {
+            Constructor<T> constructor = t.getConstructor();
+            T v = constructor.newInstance();
+
+            for (JsonField jsonField : fields) {
+                Field field = t.getDeclaredField(jsonField.getKey());
+                field.setAccessible(true);
+
+                JsonElement<?> element = jsonField.getValue();
+
+                if (element.getClass().equals(JsonObject.class)) {
+                    JsonObject nested = (JsonObject) element;
+
+                    field.set(v, nested.as(field.getType()));
+
+                } else {
+                    field.set(v, element.getData());
+                }
+            }
+
+            return v;
+
+        } catch (NoSuchMethodException e) {
+            throw new MissingNoArgsConstructorException(e);
+
+        } catch (NoSuchFieldException e) {
+            throw new NoSuchJsonFieldException(e);
+
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -41,4 +78,13 @@ public class JsonObject extends JsonElement {
         return bldr.append("}").toString();
     }
 
+    @Override
+    public Set<JsonField> getData() {
+        return fields;
+    }
+
+    @Override
+    public int hashCode() {
+        return fields.hashCode();
+    }
 }

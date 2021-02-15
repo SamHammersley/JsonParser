@@ -1,5 +1,7 @@
 package jsonparser.tree;
 
-public class JsonElement {
+public interface JsonElement<T> {
+
+    T getData();
 
 }

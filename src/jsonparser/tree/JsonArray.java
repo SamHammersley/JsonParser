@@ -1,13 +1,15 @@
 package jsonparser.tree;
 
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-public class JsonArray extends JsonElement {
+public class JsonArray<T extends JsonElement> implements JsonElement<Collection<T>>, Iterable<T> {
 
-    private final List<JsonElement> elements;
+    private final Collection<T> elements;
 
-    public JsonArray(List<JsonElement> elements) {
+    public JsonArray(Collection<T> elements) {
         this.elements = elements;
     }
 
@@ -15,7 +17,7 @@ public class JsonArray extends JsonElement {
     public String toString() {
         StringBuilder bldr = new StringBuilder("[\n");
 
-        Iterator<JsonElement> iter = elements.iterator();
+        Iterator<T> iter = elements.iterator();
         while (iter.hasNext()) {
             bldr.append(iter.next());
 
@@ -29,4 +31,22 @@ public class JsonArray extends JsonElement {
         return bldr.append(']').toString();
     }
 
+    public <E> Collection<E> map(Function<T, E> mappingFunction) {
+        return elements.stream().map(mappingFunction).collect(Collectors.toList());
+    }
+
+    @Override
+    public Collection<T> getData() {
+        return elements;
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return elements.iterator();
+    }
+
+    @Override
+    public int hashCode() {
+        return elements.hashCode();
+    }
 }

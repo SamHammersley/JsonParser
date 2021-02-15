@@ -1,6 +1,6 @@
 package jsonparser.tree;
 
-public class JsonAtom<T> extends JsonElement {
+public class JsonAtom<T> implements JsonElement<T> {
 
     private final T value;
 
@@ -13,4 +13,13 @@ public class JsonAtom<T> extends JsonElement {
         return value.toString();
     }
 
+    @Override
+    public T getData() {
+        return value;
+    }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
 }

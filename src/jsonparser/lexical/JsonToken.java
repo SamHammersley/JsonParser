@@ -1,7 +1,5 @@
 package jsonparser.lexical;
 
-import jsonparser.lexical.JsonTokenType;
-
 import java.util.function.Function;
 
 public final class JsonToken {
