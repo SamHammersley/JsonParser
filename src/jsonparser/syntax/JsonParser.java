@@ -99,7 +99,7 @@ public final class JsonParser {
                 element = new JsonNull();
                 break;
 
-            case BOOLEAN_VALUE:
+            case BOOLEAN:
                 element = new JsonAtom<>(token.mapValue(Boolean::parseBoolean));
                 break;
 
