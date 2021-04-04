@@ -1,6 +1,6 @@
 package jsonparser.tree;
 
-public class JsonAtom<T> implements JsonElement<T> {
+public class JsonAtom<T> implements JsonElement {
 
     private final T value;
 

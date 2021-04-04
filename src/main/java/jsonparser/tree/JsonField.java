@@ -2,7 +2,7 @@ package jsonparser.tree;
 
 import java.util.Objects;
 
-public final class JsonField implements JsonElement<Object[]> {
+public final class JsonField implements JsonElement {
 
     private final String key;
 

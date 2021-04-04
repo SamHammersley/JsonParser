@@ -8,7 +8,7 @@ import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.Set;
 
-public class JsonObject implements JsonElement<Set<JsonField>> {
+public class JsonObject implements JsonElement {
 
     private final Set<JsonField> fields;
 
@@ -16,7 +16,7 @@ public class JsonObject implements JsonElement<Set<JsonField>> {
         this.fields = fields;
     }
 
-    public <T extends JsonElement<?>> T getValue(String key) {
+    public <T extends JsonElement> T getValue(String key) {
         for (JsonField f : fields) {
             if (key.equals(f.getKey())) {
                 return (T) f.getValue();
@@ -35,12 +35,12 @@ public class JsonObject implements JsonElement<Set<JsonField>> {
                 Field field = t.getDeclaredField(jsonField.getKey());
                 field.setAccessible(true);
 
-                JsonElement<?> element = jsonField.getValue();
+                JsonElement element = jsonField.getValue();
 
-                if (element.getClass().equals(JsonObject.class)) {
-                    JsonObject nested = (JsonObject) element;
+                if (element instanceof JsonObject) {
+                    JsonObject nestedObject = (JsonObject) element;
 
-                    field.set(v, nested.as(field.getType()));
+                    field.set(v, nestedObject.as(field.getType()));
 
                 } else {
                     field.set(v, element.getData());

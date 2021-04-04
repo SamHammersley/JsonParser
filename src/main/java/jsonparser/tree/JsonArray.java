@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class JsonArray<T extends JsonElement> implements JsonElement<Collection<T>>, Iterable<T> {
+public class JsonArray<T extends JsonElement> implements JsonElement, Iterable<T> {
 
     private final Collection<T> elements;
 
