@@ -29,4 +29,14 @@ public final class JsonToken {
     public String toString() {
         return type.name() + ", " + value;
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (!(object instanceof JsonToken)) {
+            return false;
+        }
+
+        JsonToken other = (JsonToken) object;
+        return type.equals(other.type) && value.equals(other.value);
+    }
 }
