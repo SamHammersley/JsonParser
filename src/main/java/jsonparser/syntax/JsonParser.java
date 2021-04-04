@@ -32,10 +32,8 @@ public final class JsonParser {
         return this;
     }
 
-    private JsonParser consume() {
-        tokens.poll();
-
-        return this;
+    private JsonToken poll() {
+        return Objects.requireNonNull(tokens.poll());
     }
 
     private JsonToken getCurrent() {
@@ -43,32 +41,28 @@ public final class JsonParser {
     }
 
     private JsonObject parseJsonObject() {
-        expect(LEFT_CURLY_BRACE).consume();
-
         Set<JsonField> fields = new HashSet<>();
         fields.add(parseField());
 
         while (getCurrent().getType().equals(COMMA)) {
-            consume();
+            poll();
             fields.add(parseField());
         }
 
-        expect(RIGHT_CURLY_BRACE);
+        expect(RIGHT_CURLY_BRACE).poll();
         return new JsonObject(fields);
     }
 
-    private JsonArray<?> parseJsonArray() {
-        consume(); // consume left bracket.
-
+    private JsonArray parseJsonArray() {
         List<JsonElement> elements = new ArrayList<>();
-        elements.add(parseValue());
+        elements.add(parseJson());
 
         while (getCurrent().getType().equals(COMMA)) {
-            consume();
-            elements.add(parseValue());
+            poll();
+            elements.add(parseJson());
         }
 
-        expect(RIGHT_SQUARE_BRACKET);
+        expect(RIGHT_SQUARE_BRACKET).poll();
         return new JsonArray<>(elements);
     }
 
@@ -76,47 +70,38 @@ public final class JsonParser {
         expect(STRING_LITERAL);
         String key = getCurrent().mapValue(s -> s.replaceAll("\"", ""));
 
-        consume();
-        expect(COLON).consume();
+        poll();
+        expect(COLON).poll();
 
-        return new JsonField(key, parseValue());
+        return new JsonField(key, parseJson());
     }
 
-    public <T extends JsonElement<?>> T parseValue() {
-        JsonToken token = getCurrent();
-        JsonElement<?> element;
+    @SuppressWarnings("unchecked")
+    public <T extends JsonElement> T parseJson() {
+        JsonToken token = poll();
 
-        switch(token.getType()) {
+        switch (token.getType()) {
             case NUMBER:
-                element = new JsonAtom<>(token.mapValue(Integer::parseInt));
-                break;
+                return (T) new JsonAtom<>(token.mapValue(Integer::parseInt));
 
             case STRING_LITERAL:
-                element = new JsonAtom<>(token.getValue());
-                break;
+                return (T) new JsonAtom<>(token.getValue());
 
             case NULL:
-                element = new JsonNull();
-                break;
+                return (T) new JsonNull();
 
             case BOOLEAN:
-                element = new JsonAtom<>(token.mapValue(Boolean::parseBoolean));
-                break;
+                return (T) new JsonAtom<>(token.mapValue(Boolean::parseBoolean));
 
             case LEFT_SQUARE_BRACKET:
-                element = parseJsonArray();
-                break;
+                return (T) parseJsonArray();
 
             case LEFT_CURLY_BRACE:
-                element = parseJsonObject();
-                break;
+                return (T) parseJsonObject();
 
             default:
-                throw new RuntimeException();
+                throw new RuntimeException("Unexpected token type for token " + token);
         }
-
-        consume();
-        return (T) element;
     }
 
 }
