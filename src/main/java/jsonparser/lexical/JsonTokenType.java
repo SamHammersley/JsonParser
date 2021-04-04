@@ -5,11 +5,11 @@ import java.util.Optional;
 
 public enum JsonTokenType {
 
-    STRING_LITERAL("\"[^\"]+\""),
+    STRING_LITERAL("\"[^\"]*\""),
 
     NUMBER("[0-9]*\\.?[0-9]+"),
 
-    BOOLEAN("[0-9]*\\.?[0-9]+"),
+    BOOLEAN("(tru|fals)e"),
 
     NULL("null"),
 
