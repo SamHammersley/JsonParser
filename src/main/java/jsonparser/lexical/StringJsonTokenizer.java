@@ -8,7 +8,7 @@ import java.util.Queue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public final class JsonTokenizer {
+public final class StringJsonTokenizer {
 
     private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s*");
 
@@ -17,12 +17,6 @@ public final class JsonTokenizer {
     private static final Pattern BOOLEAN_PATTERN = Pattern.compile(JsonTokenType.BOOLEAN.getPattern());
 
     private static final Pattern STRING_LITERAL_PATTERN = Pattern.compile(JsonTokenType.STRING_LITERAL.getPattern());
-
-    private final String input;
-
-    public JsonTokenizer(String input) {
-        this.input = input;
-    }
 
     private String removeLeadingWhitespace(String s) {
         Matcher whitespaceMatcher = WHITESPACE_PATTERN.matcher(s);
@@ -34,12 +28,12 @@ public final class JsonTokenizer {
         return s;
     }
 
-    public Queue<JsonToken> tokenize() {
+    public Queue<JsonToken> tokenize(String input) {
         Queue<JsonToken> tokens = new LinkedList<>();
         String remaining = removeLeadingWhitespace(input);
 
         while (!remaining.isBlank()) {
-            JsonToken token = tokenize(remaining);
+            JsonToken token = nextToken(remaining);
             tokens.add(token);
 
             int tokenLength = token.getValue().length();
@@ -49,10 +43,10 @@ public final class JsonTokenizer {
         return tokens;
     }
 
-    private JsonToken tokenize(String remaining) {
+    private JsonToken nextToken(String remaining) {
         char head = remaining.charAt(0);
 
-        return tokenizeOneChar(head).orElseGet(() -> {
+        return oneLengthToken(head).orElseGet(() -> {
             JsonToken token;
 
             if (remaining.startsWith("null")) {
@@ -60,9 +54,10 @@ public final class JsonTokenizer {
 
             } else {
                 Pattern pattern = isQuotation(head) ? STRING_LITERAL_PATTERN :
-                        isDigit(head) ? NUMBER_PATTERN : BOOLEAN_PATTERN;
+                                  isDigit(head)     ? NUMBER_PATTERN :
+                                                      BOOLEAN_PATTERN;
 
-                token = tokenize(remaining, pattern);
+                token = variableLengthToken(remaining, pattern);
             }
 
             if (token == null) {
@@ -74,16 +69,16 @@ public final class JsonTokenizer {
         });
     }
 
-    private Optional<JsonToken> tokenizeOneChar(char character) {
-        Optional<JsonTokenType> type = JsonTokenType.fromPattern(Character.toString(character));
+    private Optional<JsonToken> oneLengthToken(char character) {
+        Optional<JsonTokenType> type = JsonTokenType.forPattern(Character.toString(character));
 
         return type.map(t -> new JsonToken(t, Character.toString(character)));
     }
 
-    private JsonToken tokenize(String string, Pattern pattern) {
+    private JsonToken variableLengthToken(String string, Pattern pattern) {
         Matcher matcher = pattern.matcher(string);
 
-        JsonTokenType type = JsonTokenType.fromPattern(pattern.pattern()).orElseThrow();
+        JsonTokenType type = JsonTokenType.forPattern(pattern.pattern()).orElseThrow();
 
         return matcher.lookingAt() ? new JsonToken(type, matcher.group()) : null;
     }

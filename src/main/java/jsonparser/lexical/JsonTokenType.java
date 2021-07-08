@@ -2,40 +2,45 @@ package jsonparser.lexical;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 public enum JsonTokenType {
 
-    STRING_LITERAL("\"[^\"]*\""),
+    STRING_LITERAL(Pattern.compile("\"[^\"]*\"")),
 
-    NUMBER("[0-9]*\\.?[0-9]+"),
+    NUMBER(Pattern.compile("[0-9]*\\.?[0-9]+")),
 
-    BOOLEAN("(tru|fals)e"),
+    BOOLEAN(Pattern.compile("(tru|fals)e")),
 
-    NULL("null"),
+    NULL(Pattern.compile("null")),
 
-    LEFT_CURLY_BRACE("{"),
+    LEFT_CURLY_BRACE(Pattern.compile("\\{")),
 
-    RIGHT_CURLY_BRACE("}"),
+    RIGHT_CURLY_BRACE(Pattern.compile("}")),
 
-    LEFT_SQUARE_BRACKET("["),
+    LEFT_SQUARE_BRACKET(Pattern.compile("\\[")),
 
-    RIGHT_SQUARE_BRACKET("]"),
+    RIGHT_SQUARE_BRACKET(Pattern.compile("]")),
 
-    COMMA(","),
+    COMMA(Pattern.compile(",")),
 
-    COLON(":");
+    COLON(Pattern.compile(":"));
 
-    private final String pattern;
+    private final Pattern pattern;
 
-    JsonTokenType(String pattern) {
+    JsonTokenType(Pattern pattern) {
         this.pattern = pattern;
     }
 
-    public static Optional<JsonTokenType> fromPattern(String pattern) {
-        return Arrays.stream(values()).filter(t -> t.pattern.equals(pattern)).findAny();
+    public static Optional<JsonTokenType> forPattern(String pattern) {
+        return Arrays.stream(values()).filter(t -> t.pattern.pattern().equals(pattern)).findAny();
+    }
+
+    public static Optional<JsonTokenType> match(String value) {
+        return Arrays.stream(values()).filter(t -> t.pattern.asMatchPredicate().test(value)).findAny();
     }
 
     public String getPattern() {
-        return pattern;
+        return pattern.pattern();
     }
 }
