@@ -11,10 +11,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static jsonparser.lexical.JsonTokenType.*;
 
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.util.*;
 
 final class JsonTest {
 
@@ -59,11 +58,14 @@ final class JsonTest {
                     "  }\n" +
                     "]";
 
-            JsonTokenizer tokenizer = new JsonTokenizer(testData);
-            Queue<JsonToken> actual = tokenizer.tokenize();
+            BufferedInputStream input = new BufferedInputStream(new ByteArrayInputStream(testData.getBytes()));
+
+            JsonTokenizer tokenizer = new JsonTokenizer();
+            Queue<JsonToken> actual = tokenizer.tokenize(input);
 
             assertIterableEquals(TEST_TOKENS, actual);
         }
+
     }
 
     @Nested
